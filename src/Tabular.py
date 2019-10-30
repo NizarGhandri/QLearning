@@ -6,8 +6,26 @@ Created on Tue Oct 29 20:52:37 2019
 @author: nizar
 """
 
-from Base import Base
+import numpy as np 
+from Base import BaseQLearning
 
 
-class Tabular(Base): 
-    pass
+class Tabular(BaseQLearning): 
+    
+    def __init__ (self, state_space, action_space, learning_rate, discount, learning_rate_decay, discount_decay): 
+        self.QTable = np.zeros((state_space, action_space))
+        self.alpha = learning_rate
+        self.gamma = discount 
+        self.alpha_decay = learning_rate_decay
+        self.gamma_decay = discount_decay
+        
+    
+    def action (self, s): #state
+        return np.argmax(self.QTable[s,:])
+    
+    def update (self, s, s_, action, reward): 
+        if(reward == 1): print((1-self.alpha)*self.QTable[s, action] + self.alpha*(reward + self.gamma*np.max(self.QTable[s_,:])))
+        self.QTable[s, action] = (1-self.alpha)*self.QTable[s, action] + self.alpha*(reward + self.gamma*np.max(self.QTable[s_,:]))
+        self.alpha *= self.alpha_decay
+        self.gamma *= self.gamma_decay
+    
