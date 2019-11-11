@@ -9,14 +9,20 @@ import gym
 import random
 import numpy as np
 from Tabular import Tabular
+from Zap import Zap_Q
 import matplotlib.pyplot as plt
 
-Modes_Available = {'Tabular': lambda sp, ap, lr, d, lr_d, d_d : Tabular(sp, ap, lr, d, lr_d, d_d)}
+Modes_Available = {'Tabular': lambda sp, ap, lr, d, lr_d, d_d : Tabular(sp, ap, lr, d, lr_d, d_d), 'Zap': lambda state_space, action_space, beta, lambd, theta_0, A_0, starting_state, p_zap_gain: Zap_Q(state_space, action_space, beta, lambd, theta_0, A_0, threshold, starting_state, p_zap_gain)}
 
 def Qlearning (mode, environment, number_of_episodes, timestep_per_episode, learning_rate, discount, epsilon, epsilon_min, learning_rate_decay, discount_decay):
     
     env = gym.make(environment)
-    QlearningObject = Modes_Available[mode](env.observation_space.n, env.action_space.n, learning_rate, discount, learning_rate_decay, discount_decay)
+    observation = env.reset()
+    if(mode != 'Zap'):
+        QlearningObject = Modes_Available[mode](env.observation_space.n, env.action_space.n, learning_rate, discount, learning_rate_decay, discount_decay)
+    else:
+        size = env.observation_space.n*env.action_space.n
+        QlearningObject = Modes_Available[mode](env.observation_space.n, env.action_space.n, discount, , np.zeros(size), np.eye(size), observation, ..)
     e = epsilon
     rewards = []
     for i_episode in range(number_of_episodes):
