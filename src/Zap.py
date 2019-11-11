@@ -5,7 +5,7 @@ Created on Sun Nov 10 18:09:22 2019
 
 @author: nizar
 """
-from Base import BaseQlearning as b
+from Base import BaseQLearning as b
 import numpy as np
 
 class Zap_Q (b): 
@@ -45,4 +45,4 @@ class Zap_Q (b):
         return (self.n+1)**self.p
     
     def alpha_n(self):
-        return 1/(self.n+1)
+        return self.zap_gain_n(-1)
