@@ -9,7 +9,7 @@ import Qlearning
 
 print("-----------------Trial Watkins for 4 * 4----------------")
 
-Qlearning.Qlearning('Tabular', 'FrozenLake-v0', 10000, 100, 0.1, 0.9, 1, 0.1, 1, 1) ###### goes up to 0.9 average reweard on the last 1000 runs 
+#Qlearning.Qlearning('Tabular', 'FrozenLake-v0', 100000, 100, 0.81, 0.96, 1, 0.2, 1, 1) ###### goes up to 0.9 average reweard on the last 1000 runs 
 
 #print("-----------------Trial for 8 * 8----------------")
 
@@ -18,4 +18,4 @@ Qlearning.Qlearning('Tabular', 'FrozenLake-v0', 10000, 100, 0.1, 0.9, 1, 0.1, 1,
 
 print("-----------------Trial Zap for 4 * 4----------------")                                                                                             
 
-Qlearning.Qlearning('Tabular', 'FrozenLake-v0', 10000, 100, 0.1, 0.9, 1, 0.1, 1, 1)
+Qlearning.Qlearning('Zap', 'FrozenLake-v0', 10000, 100, 0.1, 0.9, 1, 0.1, 1, 1)

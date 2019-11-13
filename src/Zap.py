@@ -7,6 +7,8 @@ Created on Sun Nov 10 18:09:22 2019
 """
 from Base import BaseQLearning as b
 import numpy as np
+import sys
+import math
 
 class Zap_Q (b): 
     #given we are coding basis functions we take our basis functions to be the indicator functions 1{x = x^n, u = u^n}
@@ -37,7 +39,12 @@ class Zap_Q (b):
         d_n_1 = reward + self.beta * self.theta[S_ + futur_action] - self.theta[S + action]
         A_n_1 = self.swig@(self.beta*self.basis_f[S_ + futur_action,:]-self.basis_f[S + action,:])
         self.A = self.A + (A_n_1 - self.A)*self.zap_gain_n() 
-        self.theta = self.theta - np.transpose(self.alpha_n()*np.linalg.pinv(A_n_1)*self.swig*d_n_1)
+        print(self.theta)
+        self.theta = self.theta - np.transpose(self.alpha_n()*np.linalg.pinv(self.A)@self.swig*d_n_1)
+        print(self.theta)
+        print(np.transpose(self.alpha_n()*np.linalg.pinv(self.A)@self.swig*d_n_1))
+        if(math.isnan(self.theta[0])):
+            sys.exit(0)
         self.swig = self.lambd*self.beta*self.swig + self.basis_f[:, S_ + futur_action]
         self.n += 1
              
@@ -45,4 +52,4 @@ class Zap_Q (b):
         return (self.n+1)**self.p
     
     def alpha_n(self):
-        return self.zap_gain_n(-1)
+        return 1/(self.n+1)
