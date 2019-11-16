@@ -6,7 +6,7 @@ Created on Tue Oct 29 17:19:05 2019
 @author: nizar
 """
 import gym
-import random
+import sys
 import numpy as np
 from Tabular import Tabular
 from Zap import Zap_Q
@@ -22,16 +22,17 @@ def Qlearning (mode, environment, number_of_episodes, timestep_per_episode, lear
         QlearningObject = Modes_Available[mode](env.observation_space.n, env.action_space.n, learning_rate, discount, learning_rate_decay, discount_decay)
     else:
         size = env.observation_space.n*env.action_space.n
-        print(size)
         QlearningObject = Modes_Available[mode](env.observation_space.n, env.action_space.n, discount, lambd , np.zeros(size), np.eye(size), observation, pzap)
-    #e = epsilon
+    e = epsilon
     rewards = []
     for i_episode in range(number_of_episodes):
+        #if (i_episode > 500):
+         #   e = epsilon_min
         r = 0
         observation = env.reset()
         for t in range(timestep_per_episode):
             env.render()
-            if (i_episode < 500):
+            if (np.random.uniform() < e):
                 action = env.action_space.sample()
             else:
                 action = QlearningObject.action(observation)
@@ -43,9 +44,12 @@ def Qlearning (mode, environment, number_of_episodes, timestep_per_episode, lear
                 print("Episode finished after {} timesteps".format(t+1))
                 break
         rewards.append(r)
-       # e = epsilon_min + (1 - epsilon_min) * np.exp(-1*i_episode/10000)
-    print(QlearningObject.QTable)
-    f = np.split(np.array(rewards), 1000)
+        print(QlearningObject.QTable)
+        if (QlearningObject.QTable[15,3] > 0):
+            break
+            sys.exit(0)
+        e = epsilon_min + (epsilon - epsilon_min) * np.exp(-0.007*i_episode)
+    f = np.split(np.array(rewards), 200)
     plotted = []
     for r in f: 
         z = sum(r)/100

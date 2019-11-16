@@ -18,13 +18,13 @@ class Tabular(BaseQLearning):
         self.gamma = discount 
         self.alpha_decay = learning_rate_decay
         self.gamma_decay = discount_decay
+        self.n = 0
         
     
     def action (self, s): #state
         return np.argmax(self.QTable[s,:])
     
     def update (self, s, s_, action, reward): 
-        self.QTable[s, action] = (1-self.alpha)*self.QTable[s, action] + self.alpha*(reward + self.gamma*np.max(self.QTable[s_,:]))
-        self.alpha *= self.alpha_decay
-        self.gamma *= self.gamma_decay
+        self.QTable[s, action] = self.QTable[s, action] + self.alpha*(reward + self.gamma*np.max(self.QTable[s_,:]) - self.QTable[s, action])
+        
     
