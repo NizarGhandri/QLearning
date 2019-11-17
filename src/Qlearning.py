@@ -45,9 +45,6 @@ def Qlearning (mode, environment, number_of_episodes, timestep_per_episode, lear
                 break
         rewards.append(r)
         print(QlearningObject.QTable)
-        if (QlearningObject.QTable[15,3] > 0):
-            break
-            sys.exit(0)
         e = epsilon_min + (epsilon - epsilon_min) * np.exp(-0.007*i_episode)
     f = np.split(np.array(rewards), 200)
     plotted = []
