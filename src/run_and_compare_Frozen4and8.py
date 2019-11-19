@@ -9,7 +9,7 @@ import Qlearning
 
 print("-----------------Trial Watkins for 4 * 4----------------")
 
-Qlearning.Qlearning('Tabular', 'FrozenLake-v0', 20000, 100, 0.05, 0.99, 3, 0.05, 1, 1) ###### goes up to 0.9 average reweard on the last 1000 runs 
+#Qlearning.Qlearning('Tabular', 'FrozenLake-v0', 10000, 100, 0.05, 0.99, 3, 0.05, 1, 1) ###### goes up to 0.9 average reweard on the last 1000 runs 
 
 #print("-----------------Trial for 8 * 8----------------")
 #QlearningFrozen.Qlearning('Tabular', 'FrozenLake8x8-v0', 100000, 1000, 0.1, 0.9, 1, 0.1, 1, 1) ####### doesn't work with the same number of episodes but if u 
@@ -17,4 +17,4 @@ Qlearning.Qlearning('Tabular', 'FrozenLake-v0', 20000, 100, 0.05, 0.99, 3, 0.05,
 
 print("-----------------Trial Zap for 4 * 4----------------")                                                                                             
 
-#Qlearning.Qlearning('Zap', 'FrozenLake-v0', 10000, 100, 0.1, 0.9, 1, 0.1, 1, 1)
+Qlearning.Qlearning('Zap', 'FrozenLake-v0', 20000, 100, 0, 0.99, 0.5, 0, 1, 1)

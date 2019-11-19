@@ -44,9 +44,11 @@ def Qlearning (mode, environment, number_of_episodes, timestep_per_episode, lear
                 print("Episode finished after {} timesteps".format(t+1))
                 break
         rewards.append(r)
-        print(QlearningObject.QTable)
+        if(mode == 'Zap'):
+            QlearningObject.ep()
+        #print(QlearningObject.QTable)
         e = epsilon_min + (epsilon - epsilon_min) * np.exp(-0.007*i_episode)
-    f = np.split(np.array(rewards), 200)
+    f = np.split(np.array(rewards), 100)
     plotted = []
     for r in f: 
         z = sum(r)/100
