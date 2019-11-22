@@ -41,13 +41,11 @@ class Zap_Q (b):
         A_n_1 = self.swig@(self.beta*self.basis_f[S_ + futur_action,:].reshape(1, self.size)-self.basis_f[S + action,:].reshape(1, self.size))
         self.A = self.A + (A_n_1 - self.A)*self.zap_gain_n() 
         self.theta = self.theta - self.alpha_n()*np.linalg.pinv(self.A)@self.swig*d_n_1
-        if(math.isnan(self.theta[0,0])):
-            sys.exit(0)
         self.swig = self.lambd*self.beta*self.swig + self.basis_f[S_ + futur_action,:].reshape(self.size, 1)
-        
-        
-    def ep(self):    
         self.n += 1
+        
+        
+    
              
     def zap_gain_n(self):
         return (self.n+1)**self.p

@@ -12,6 +12,7 @@ from Tabular import Tabular
 from Zap import Zap_Q
 import matplotlib.pyplot as plt
 
+
 Modes_Available = {'Tabular': lambda sp, ap, lr, d, lr_d, d_d : Tabular(sp, ap, lr, d, lr_d, d_d), 'Zap': lambda state_space, action_space, beta, lambd, theta_0, A_0, starting_state, p_zap_gain: Zap_Q(state_space, action_space, beta, lambd, theta_0, A_0, starting_state, p_zap_gain)}
 
 def Qlearning (mode, environment, number_of_episodes, timestep_per_episode, learning_rate, discount, epsilon, epsilon_min, learning_rate_decay, discount_decay, pzap=-0.85, lambd = 0):
@@ -22,7 +23,7 @@ def Qlearning (mode, environment, number_of_episodes, timestep_per_episode, lear
         QlearningObject = Modes_Available[mode](env.observation_space.n, env.action_space.n, learning_rate, discount, learning_rate_decay, discount_decay)
     else:
         size = env.observation_space.n*env.action_space.n
-        QlearningObject = Modes_Available[mode](env.observation_space.n, env.action_space.n, discount, lambd , np.zeros(size), np.eye(size), observation, pzap)
+        QlearningObject = Modes_Available[mode](env.observation_space.n, env.action_space.n, discount, lambd , np.zeros(size), np.zeros((size, size)), observation, pzap)
     e = epsilon
     rewards = []
     for i_episode in range(number_of_episodes):
@@ -37,16 +38,23 @@ def Qlearning (mode, environment, number_of_episodes, timestep_per_episode, lear
             else:
                 action = QlearningObject.action(observation)
             observationN, reward, done, info = env.step(action)
+            print(reward)
+            print(action)
             QlearningObject.update(observation, observationN, action, reward)
             observation = observationN
             r += reward
             if done:
                 print("Episode finished after {} timesteps".format(t+1))
+                #if (not(np.array_equal(QlearningObject.theta, np.zeros((env.observation_space.n* env.action_space.n,1))))):
+                    #if (QlearningObject.QTable[14,2] < QlearningObject.QTable[14,1]):
+                 #    print(QlearningObject.theta)
+                  #   sys.exit(0)
                 break
         rewards.append(r)
-        if(mode == 'Zap'):
-            QlearningObject.ep()
-        #print(QlearningObject.QTable)
+        print(QlearningObject.theta)
+        #if(mode == 'Zap'):
+         #   QlearningObject.ep()
+       # print(QlearningObject.QTable)
         e = epsilon_min + (epsilon - epsilon_min) * np.exp(-0.007*i_episode)
     f = np.split(np.array(rewards), 100)
     plotted = []
