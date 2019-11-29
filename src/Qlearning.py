@@ -23,13 +23,13 @@ def Qlearning (mode, environment, number_of_episodes, timestep_per_episode, lear
         QlearningObject = Modes_Available[mode](env.observation_space.n, env.action_space.n, learning_rate, discount, learning_rate_decay, discount_decay)
     else:
         size = env.observation_space.n*env.action_space.n
-        QlearningObject = Modes_Available[mode](env.observation_space.n, env.action_space.n, discount, lambd , np.zeros(size), np.zeros((size, size)), observation, pzap)
-    e = epsilon
+        QlearningObject = Modes_Available[mode](env.observation_space.n, env.action_space.n, discount, lambd , np.zeros(size), np.ones((size, size)), observation, pzap)
+    e = 0.9
     rewards = []
+    
+    
+    ########## training ############
     for i_episode in range(number_of_episodes):
-        #if (i_episode > 500):
-         #   e = epsilon_min
-        r = 0
         observation = env.reset()
         for t in range(timestep_per_episode):
             env.render()
@@ -38,11 +38,8 @@ def Qlearning (mode, environment, number_of_episodes, timestep_per_episode, lear
             else:
                 action = QlearningObject.action(observation)
             observationN, reward, done, info = env.step(action)
-            print(reward)
-            print(action)
             QlearningObject.update(observation, observationN, action, reward)
             observation = observationN
-            r += reward
             if done:
                 print("Episode finished after {} timesteps".format(t+1))
                 #if (not(np.array_equal(QlearningObject.theta, np.zeros((env.observation_space.n* env.action_space.n,1))))):
@@ -50,12 +47,39 @@ def Qlearning (mode, environment, number_of_episodes, timestep_per_episode, lear
                  #    print(QlearningObject.theta)
                   #   sys.exit(0)
                 break
-        rewards.append(r)
-        print(QlearningObject.theta)
+       # e = epsilon_min + (epsilon - epsilon_min) * np.exp(-0.007*i_episode)
+        
+        
+    ########## evaluation ############    
+    QlearningObject.n = 0  
+    Qtables = []
+    for i_episode in range(number_of_episodes):
+            r = 0
+            observation = env.reset()
+            for t in range(timestep_per_episode):
+                env.render()
+                action = QlearningObject.action(observation)
+                observationN, reward, done, info = env.step(action)
+                QlearningObject.update(observation, observationN, action, reward)
+                observation = observationN
+                r += reward
+                if done:
+                    print("Episode finished after {} timesteps".format(t+1))
+                    #if (not(np.array_equal(QlearningObject.theta, np.zeros((env.observation_space.n* env.action_space.n,1))))):
+                        #if (QlearningObject.QTable[14,2] < QlearningObject.QTable[14,1]):
+                     #    print(QlearningObject.theta)
+                      #   sys.exit(0)
+                    break
+            rewards.append(r)
+            Qtables.append(QlearningObject.theta)
         #if(mode == 'Zap'):
          #   QlearningObject.ep()
-       # print(QlearningObject.QTable)
-        e = epsilon_min + (epsilon - epsilon_min) * np.exp(-0.007*i_episode)
+       # 
+    print(QlearningObject.A)
+    A = Qtables[::100]
+    for i in range(len(A)):
+        print("######## Qtable number %d ########" %i)
+        print(A[i])
     f = np.split(np.array(rewards), 100)
     plotted = []
     for r in f: 
