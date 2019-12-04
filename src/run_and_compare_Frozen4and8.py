@@ -17,4 +17,4 @@ print("-----------------Trial Watkins for 4 * 4----------------")
 
 print("-----------------Trial Zap for 4 * 4----------------")                                                                                             
 
-Qlearning.Qlearning('Zap', 'FrozenLake-v0', 10000, 100, 0.9, 0.9, 1, 0.4, 1, 1)
+Qlearning.Qlearning('Zap', 'FrozenLake-v0', 30000, 100, 0.9, 0.9, 1, 0.4, 1, 1)

@@ -23,7 +23,7 @@ class Zap_Q (b):
         self.size = self.state_space*self.action_space
         self.theta = np.array(theta_0).reshape(self.size,1)
         self.A = np.array(A_0)
-        self.basis_f = 0.5*np.eye(self.size)
+        self.basis_f = np.eye(self.size)
         self.swig = self.basis_f[starting_state*self.action_space+self.action(starting_state), :].reshape(self.size, 1)
         self.p = p_zap_gain
         self.n = 0
@@ -37,12 +37,19 @@ class Zap_Q (b):
         S = s*self.action_space
         S_ = s_*self.action_space
         futur_action = self.action(s_)
+        self.swig = self.lambd*self.beta*self.swig + self.basis_f[S + action,:].reshape(self.size, 1)
         d_n_1 = reward + self.beta * self.theta[S_ + futur_action,0] - self.theta[S + action,0]
         A_n_1 = self.swig@(self.beta*self.basis_f[S_ + futur_action,:].reshape(1, self.size)-self.basis_f[S + action,:].reshape(1, self.size))
-        self.A = self.A + (A_n_1 - self.A)*self.zap_gain_n()
-        self.theta = self.theta - self.alpha_n()*np.linalg.pinv(self.A)@self.swig*d_n_1
-        self.swig = self.lambd*self.beta*self.swig + self.basis_f[S_ + futur_action,:].reshape(self.size, 1)
+        self.A = (self.A + (A_n_1 - self.A)*self.zap_gain_n())
+        #projection = np.vectorize(lambda x : min(-10000, x))
+        G = -np.linalg.inv(self.A + 0.0000000001*np.eye(self.size)) 
+        self.theta = self.theta + self.alpha_n()*G@self.swig*d_n_1#self.alpha_n()*
         self.n += 1
+      #  if (self.n == 2000):
+       #     print ("current state: %d next state: %d the action and reward: %d %d" %(s, s_, action, reward))
+        #    print ("dn+1 = %d" %d_n_1)
+         #   print(self.theta)
+          #  sys.exit(0)
         
         ##work on A inverse !
         
