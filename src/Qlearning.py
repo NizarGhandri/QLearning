@@ -6,25 +6,25 @@ Created on Tue Oct 29 17:19:05 2019
 @author: nizar
 """
 import gym
-import sys
+import time
 import numpy as np
 from Tabular import Tabular
 from Zap import Zap_Q
 import matplotlib.pyplot as plt
 
 
-Modes_Available = {'Tabular': lambda sp, ap, lr, d, lr_d, d_d : Tabular(sp, ap, lr, d, lr_d, d_d), 'Zap': lambda state_space, action_space, beta, lambd, theta_0, A_0, starting_state, p_zap_gain: Zap_Q(state_space, action_space, beta, lambd, theta_0, A_0, starting_state, p_zap_gain)}
+Modes_Available = {'Tabular': lambda sp, ap, lr, d, lr_d, d_d, tr : Tabular(sp, ap, lr, d, lr_d, d_d, tr), 'Zap': lambda state_space, action_space, beta, lambd, theta_0, A_0, starting_state, p_zap_gain, training: Zap_Q(state_space, action_space, beta, lambd, theta_0, A_0, starting_state, p_zap_gain, training)}
 
-def Qlearning (mode, environment, number_of_episodes, timestep_per_episode, learning_rate, discount, epsilon, epsilon_min, learning_rate_decay, discount_decay, pzap=-0.85, lambd = 0):
+def Qlearning (mode, environment, number_of_episodes, timestep_per_episode, learning_rate, discount, epsilon, epsilon_min, learning_rate_decay, discount_decay, pzap=-0.6, lambd = 0):
     
     env = gym.make(environment)
     observation = env.reset()
     if(mode != 'Zap'):
-        QlearningObject = Modes_Available[mode](env.observation_space.n, env.action_space.n, learning_rate, discount, learning_rate_decay, discount_decay)
+        QlearningObject = Modes_Available[mode](env.observation_space.n, env.action_space.n, learning_rate, discount, learning_rate_decay, discount_decay, True)
     else:
         size = env.observation_space.n*env.action_space.n
-        QlearningObject = Modes_Available[mode](env.observation_space.n, env.action_space.n, discount, lambd , np.zeros(size), np.ones((size, size)), observation, pzap)
-    e = 0.9
+        QlearningObject = Modes_Available[mode](env.observation_space.n, env.action_space.n, discount, lambd , np.zeros(size), np.ones((size, size)), observation, pzap, True)
+    e = 0.6
     rewards = []
     
     
@@ -47,13 +47,17 @@ def Qlearning (mode, environment, number_of_episodes, timestep_per_episode, lear
                  #    print(QlearningObject.theta)
                   #   sys.exit(0)
                 break
-       # e = epsilon_min + (epsilon - epsilon_min) * np.exp(-0.007*i_episode)
-    print(QlearningObject.theta)    
+        #e = epsilon_min + (epsilon - epsilon_min) * np.exp(i_episode)
+  # print(QlearningObject.theta)    
     #sys.exit(0)  
+    QlearningObject.training = False
+    print("here", number_of_episodes)
+    #time.sleep(30)
     ########## evaluation ############    
     QlearningObject.n = 0  
-    Qtables = []
-    gain_matrices = []
+   # Qtables = []
+    #gain_matrices = []
+    
     for i_episode in range(number_of_episodes):
             r = 0
             observation = env.reset()
@@ -72,8 +76,8 @@ def Qlearning (mode, environment, number_of_episodes, timestep_per_episode, lear
                       #   sys.exit(0)
                     break
             rewards.append(r)
-            Qtables.append(QlearningObject.theta)
-            gain_matrices.append(QlearningObject.A)
+            #Qtables.append(QlearningObject.theta)
+            #gain_matrices.append(QlearningObject.A)
         #if(mode == 'Zap'):
          #   QlearningObject.ep()
        # 
@@ -81,13 +85,12 @@ def Qlearning (mode, environment, number_of_episodes, timestep_per_episode, lear
    # for i in range(len(A)):
     #    print("######## Qtable number %d ########" %i)
        # print(A[i])
-    f = np.split(np.array(rewards), 300)
+    f = np.split(np.array(rewards), number_of_episodes//100)
     plotted = []
     for r in f: 
         z = sum(r)/100
         print(z)
         plotted.append(z)
-    print(-np.linalg.inv((gain_matrices[np.argmax(z)]) + 0.000000000000000000000001*np.eye(size)))
     plt.plot(plotted)
     plt.show()
     env.close()
