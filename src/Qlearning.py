@@ -23,8 +23,8 @@ def Qlearning (mode, environment, number_of_episodes, timestep_per_episode, lear
         QlearningObject = Modes_Available[mode](env.observation_space.n, env.action_space.n, learning_rate, discount, learning_rate_decay, discount_decay, True)
     else:
         size = env.observation_space.n*env.action_space.n
-        QlearningObject = Modes_Available[mode](env.observation_space.n, env.action_space.n, discount, lambd , np.zeros(size), np.ones((size, size)), observation, pzap, True)
-    e = 0.6
+        QlearningObject = Modes_Available[mode](env.observation_space.n, env.action_space.n, discount, lambd , np.zeros(size), np.zeros((size, size)), observation, pzap, True)
+    e = 0.5
     rewards = []
     
     

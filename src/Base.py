@@ -17,3 +17,7 @@ class BaseQLearning (ABC):
     def action ():
         pass
     
+    @abstractmethod
+    def temp ():
+        pass
+    

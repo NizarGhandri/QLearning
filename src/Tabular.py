@@ -32,9 +32,9 @@ class Tabular(BaseQLearning):
         
         
     def alpha_n(self):
-        if (self.training):
-            return 0.1
-        else:
-            return 1/(self.n+1)**0.8
+        #if (self.training):
+         #   return 0.1
+        #else:
+        return 1000/(self.n+1001)
         
     
