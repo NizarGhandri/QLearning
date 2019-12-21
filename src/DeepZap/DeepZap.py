@@ -1,17 +1,16 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on Sun Nov 10 18:09:22 2019
+Created on Mon Dec 16 22:06:26 2019
 
 @author: nizar
 """
 from Base import BaseQLearning as b
 import numpy as np
 import sys
-import math
 np.set_printoptions(threshold=sys.maxsize)
 
-class Zap_Q (b): 
+class DeepZap (b): 
     #given we are coding basis functions we take our basis functions to be the indicator functions 1{x = x^n, u = u^n}
     #Thus our Q values will be the stochastically aproximated theta
     
@@ -22,9 +21,32 @@ class Zap_Q (b):
         self.state_space = state_space
         self.action_space = action_space
         self.size = self.state_space*self.action_space
-        self.theta = np.array(theta_0).reshape(self.size,1)
-        self.A = np.array(A_0)
-        self.basis_f = np.eye(self.size)
+        #self.theta = np.array(theta_0).reshape(self.size,1)
+        
+        #------- Target neural network --------------------
+        self.targetNN = Sequential()
+        self.targetNN.add(Dense(1, input_shape = (1,) , activation= 'relu'))
+        self.targetNN.add(Dense(16, activation= 'relu'))
+        self.targetNN.add(Dense(8, activation= 'relu'))
+        self.targetNN.add(Dense(4, activation="sigmoid"))
+        self.targetNN.compile(optimizer='adam', loss='mean_squared_error')
+        print(self.targetNN.summary())
+        
+        
+        #-------- Prediction neural network ---------------
+        self.predictionNN = Sequential()
+        self.predictionNN.add(Dense(5, input_shape = (5,), activation= 'relu'))
+        self.predictionNN.add(Dense(16, activation = 'relu'))
+        self.predictionNN.add(Dense(8, activation= 'relu'))
+        self.predictionNN.add(Dense(1, activation= 'sigmoid'))
+        self.predictionNN.compile(optimizer='adam', loss='mean_squared_error')
+        print(self.predictionNN.summary())
+        
+        #-------- Updating for same parameters -------------
+        self.targetNN.set_weights(self.predictionNN.get_weights()) 
+        
+        self.A = #gradient(self.QNN)
+        #self.basis_f = np.eye(self.size)
         self.swig = self.basis_f[starting_state*self.action_space+self.action(starting_state), :].reshape(self.size, 1)
         self.p = p_zap_gain
         self.n = 0
@@ -35,7 +57,7 @@ class Zap_Q (b):
         S = s*self.action_space
         return np.argmax(self.theta[S:S+self.action_space, 0])
     
-    def update(self, s, s_, action, reward):
+    def update_loss_function(self, s, s_, action, reward):
         def projection (x):
             if(x < 0.0001 and x > -0.0001):  
                 return np.sign(x)*0.0001
@@ -45,8 +67,8 @@ class Zap_Q (b):
         self.swig = self.lambd*self.beta*self.swig + self.basis_f[S + action,:].reshape(self.size, 1)
         d_n_1 = reward + 0.99 * self.theta[S_ + futur_action,0] - self.theta[S + action,0]
         A_n_1 = self.swig@(self.beta*self.basis_f[S_ + futur_action,:].reshape(1, self.size)-self.basis_f[S + action,:].reshape(1, self.size))
-        #projection_vectorized = np.vectorize(self.projection)
-        self.A = (self.A + (A_n_1 - self.A)*0.999999999999999999999999999999999999999999999) #0.999999999999999999999999999999999999999999999
+        #projection_vectorized = np.vectorize(projection)
+        self.A = (self.A + (A_n_1 - self.A)*0.999999999999999999999999999999999999999999999)
         #self.A = projection_vectorized(self.A)
        # if(self.n == 5000):
         #    print(self.A)
@@ -68,7 +90,12 @@ class Zap_Q (b):
         ##work on training and then evaluation ! Keep epsilon constant !
         
         ##zap gain 5
-        
+    def update(self):
+        pass
+    
+    
+    def gradient (self):
+        pass
         
     
     def temp (self):

@@ -85,6 +85,9 @@ def Qlearning (mode, environment, number_of_episodes, timestep_per_episode, lear
    # for i in range(len(A)):
     #    print("######## Qtable number %d ########" %i)
        # print(A[i])
+    print(QlearningObject.theta)
+    print("----------------------------------------------------")
+    print(QlearningObject.A)
     f = np.split(np.array(rewards), number_of_episodes//100)
     plotted = []
     for r in f: 
