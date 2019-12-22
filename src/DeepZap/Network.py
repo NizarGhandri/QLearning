@@ -122,35 +122,37 @@ class Network:
 #         self.b[index] -= self.learning_rate * np.mean(delta, 0)
 # =============================================================================
 
-    def fit(self, x, y_true, loss, epochs, batch_size):
-        """
-        :param x: (array) Containing parameters
-        :param y_true: (array) Containing one hot encoded labels.
-        :param loss: Loss class (MSE, CrossEntropy etc.)
-        :param epochs: (int) Number of epochs.
-        :param batch_size: (int)
-        :param learning_rate: (flt)
-        """
-        if not x.shape[0] == y_true.shape[0]:
-            raise ValueError("Length of x and y arrays don't match")
-            
-        # Initiate the loss object with the final activation function
-        self.loss_function = loss
-
-        for i in range(epochs):
-            # Shuffle the data
-            indices = np.arange(x.shape[0])
-            np.random.shuffle(indices)
-            x_ = x[indices]
-            y_ = y_true[indices]
-
-            for j in range(x.shape[0] // batch_size):
-                k = j * batch_size
-                l = (j + 1) * batch_size
-                z, a = self.feed_forward(x_[k:l])
-                self.back_prop(z, a, y_[k:l])
-
-            if (i + 1) % 10 == 0:
-                _, a = self.feed_forward(x)
-                print("Loss at epoch {}: {}".format(i + 1, self.loss_function.loss(y_true, a[self.n_layers])))
-                
+# =============================================================================
+#     def fit(self, x, y_true, loss, epochs, batch_size):
+#         """
+#         :param x: (array) Containing parameters
+#         :param y_true: (array) Containing one hot encoded labels.
+#         :param loss: Loss class (MSE, CrossEntropy etc.)
+#         :param epochs: (int) Number of epochs.
+#         :param batch_size: (int)
+#         :param learning_rate: (flt)
+#         """
+#         if not x.shape[0] == y_true.shape[0]:
+#             raise ValueError("Length of x and y arrays don't match")
+#             
+#         # Initiate the loss object with the final activation function
+#         self.loss_function = loss
+# 
+#         for i in range(epochs):
+#             # Shuffle the data
+#             indices = np.arange(x.shape[0])
+#             np.random.shuffle(indices)
+#             x_ = x[indices]
+#             y_ = y_true[indices]
+# 
+#             for j in range(x.shape[0] // batch_size):
+#                 k = j * batch_size
+#                 l = (j + 1) * batch_size
+#                 z, a = self.feed_forward(x_[k:l])
+#                 self.back_prop(z, a, y_[k:l])
+# 
+#             if (i + 1) % 10 == 0:
+#                 _, a = self.feed_forward(x)
+#                 print("Loss at epoch {}: {}".format(i + 1, self.loss_function.loss(y_true, a[self.n_layers])))
+#                 
+# =============================================================================

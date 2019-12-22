@@ -16,7 +16,7 @@ import Network
 
 class ZapNet: 
     
-    def __init__(self, dimensions, self.beta=0.99, self.zapgain=0.999999999999999999999999999999999999999999999, ):
+    def __init__(self, dimensions, beta=0.99, zapgain=0.999999999999999999999999999999999999999999999, epsilonzap=0.00000000000001):
         """
         :param dimensions: list of dimensions of the neural net. (input, hidden layer, ... ,hidden layer, output)
         Example of one hidden layer with
@@ -31,34 +31,38 @@ class ZapNet:
         """
         activations = np.append(np.full(len(dimensions)-2, ActivationFunctions.linear), ActivationFunctions.sigmoid)
         self.neural_net = Network(dimensions, activations, self.update)
+        self.beta = beta
+        self.zapgain = zapgain
+        self.epsilonzap = epsilonzap
+    
+    def nlayers (self):
+        return self.neural_net.nlayers
         
+    def action(self, s):
+        return np.argmax(self.neural_net.predict(s))
         
+    def update_layer(self, reward, a, a_, i):
+        number_of_neurones = self.neural_net.dimensions[i]
+        number_of_neurones_next_layer = self.neural_net.dimensions[i+1]
+        for j in range(number_of_neurones):
+            swig = np.full(number_of_neurones_next_layer, self.neural_net.a[i, 0])
+            swig_f = np.full(number_of_neurones_next_layer, self.neural_net.a_[i, 0])
+            d_n_1 = reward + self.beta * self.neural_net.w[i,j]@swig_f - self.neural_net.w[i,j]@swig
+            A_n_1 = swig@(self.beta*self.swig_f-swig)
+            self.A = (self.A + (A_n_1 - self.A)*self.zapgain) 
+            G = -np.linalg.pinv(A + self.epsilonzap * np.eye(number_of_neurones_next_layer))
+            self.neural_net.w[i,j] = self.neural_net.w[i,j] + self.alpha_n()*G@swig*d_n_1
         
-    def update(self, s, s_, action, reward):
-        def projection (x):
-            if(x < 0.0001 and x > -0.0001):  
-                return np.sign(x)*0.0001
-        S = s*self.action_space
-        S_ = s_*self.action_space
-        futur_action = self.action(s_)
-        self.swig = self.basis_f[S + action,:].reshape(self.size, 1)
-        d_n_1 = reward + self.beta * self.theta[S_ + futur_action,0] - self.theta[S + action,0]
-        A_n_1 = self.swig@(self.beta*self.basis_f[S_ + futur_action,:].reshape(1, self.size)-self.basis_f[S + action,:].reshape(1, self.size))
-        #projection_vectorized = np.vectorize(projection)
-        self.A = (self.A + (A_n_1 - self.A)*self.zapgain) 
-        #self.A = projection_vectorized(self.A)
-       # if(self.n == 5000):
-        #    print(self.A)
-         #   sys.exit(0)
-        #l = np.transpose(self.A)
-        #print(self.A + 0.0000000000001 * np.eye(self.size))
-        G = -np.linalg.pinv(self.A + 0.00000000000001 * np.eye(self.size))
-        self.theta = self.theta + self.alpha_n()*G@self.swig*d_n_1
-        #self.alpha_n()
-        self.n += 1
+    def update(self, reward, a, a_):
+        for i in range(self.nlayers()-1, 0, -1):
+            self.update_layer(reward, a, a_, i)
+            
+    
         
-    def reward(x, y, loss, lmbd=0.1):
-            return np.exp(lmbd*loss(x,y))/lmbd
+# =============================================================================
+#     def reward(x, y, loss, lmbd=0.1):
+#             return np.exp(lmbd*loss(x,y))*lmbd
+# =============================================================================
         
     def zap_gain_n(self):
 # =============================================================================
