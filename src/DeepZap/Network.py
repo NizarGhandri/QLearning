@@ -49,6 +49,7 @@ class Network:
         :param x: (array) Batch of input data vectors.
         :return: (tpl) Node outputs and activations per layer. The numbering of the output is equivalent to the layer numbers.
         """
+        
 
         # w(x) + b
         z = {}

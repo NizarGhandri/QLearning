@@ -14,6 +14,8 @@ import numpy as np
 import ActivationFunctions 
 from Network import Network
 import gym
+import matplotlib.pyplot as plt
+import sys
 
 class ZapNet: 
     
@@ -30,7 +32,8 @@ class ZapNet:
         
         the back propagation will be done in the Zap update manner
         """
-        activations = np.append(np.full(len(dimensions)-2, ActivationFunctions.linear), ActivationFunctions.sigmoid)
+        self.dimensions = dimensions
+        activations =np.full(len(dimensions)-1, ActivationFunctions.linear)
         self.neural_net = Network(dimensions, activations, self.update)
         self.beta = beta
         self.zapgain = zapgain
@@ -43,36 +46,40 @@ class ZapNet:
             self.A.append([np.zeros((dimensions[i+1], dimensions[i+1])) for j in range(dimensions[i])])
     
     def nlayers (self):
-        return self.neural_net.nlayers
+        return self.neural_net.n_layers
         
     def action(self, s):
-        return (np.argmax(self.neural_net.predict(s))-1/2)*2
+        return np.argmax(self.neural_net.predict(s))
     
     ###### for now only supports linear activation function    
     def update_layer(self, reward, a, a_, i):
-        number_of_neurones = self.neural_net.dimensions[i]
-        number_of_neurones_next_layer = self.neural_net.dimensions[i+1]
+        number_of_neurones = self.dimensions[i]
+        number_of_neurones_next_layer = self.dimensions[i+1]
+        k = i + 1
         for j in range(number_of_neurones):
-            swig = np.full(number_of_neurones_next_layer, self.neural_net.a[i, j])
-            swig_f = np.full(number_of_neurones_next_layer, self.neural_net.a_[i, j])
-            d_n_1 = reward + self.beta * self.neural_net.w[i,j]@swig_f - self.neural_net.w[i,j]@swig
-            A_n_1 = swig@(self.beta*self.swig_f-swig)
-            self.A[i,j] = (self.A[i,j] + (A_n_1 - self.A[i,j])*self.zapgain) 
-            G = -np.linalg.pinv(self.A[i,j] + self.epsilonzap * np.eye(number_of_neurones_next_layer))
-            self.neural_net.w[i,j] = self.neural_net.w[i,j] + self.alpha_n()*G@swig*d_n_1
+            swig = np.full(number_of_neurones_next_layer, a[k][0][j])
+            swig_f = np.full(number_of_neurones_next_layer, a_[k][0][j])
+            d_n_1 = reward + self.beta * self.neural_net.w[k][j]@swig_f - self.neural_net.w[k][j]@swig
+            A_n_1 = swig@(self.beta*swig_f-swig)
+            self.A[i][j] = (self.A[i][j] + (A_n_1 - self.A[i][j])*self.zapgain) 
+            G = -np.linalg.pinv(self.A[i][j] + self.epsilonzap * np.eye(number_of_neurones_next_layer))
+            self.neural_net.w[k][j] = self.neural_net.w[k][j] + self.alpha_n()*G@swig*d_n_1
         
     def update(self, observation, observationN, action, reward):
-        _, a = self.neural_net.feedforward(observation)
-        _, a_ = self.neural_net.feedforward(observationN)
-        
-        for i in range(self.nlayers()-1, 1, -1):
+     
+        _, a = self.neural_net.feed_forward(observation)
+        _, a_ = self.neural_net.feed_forward(observationN)
+        #print(a)
+        for i in range(self.nlayers()-2, -1, -1):
+            #print(i+1)
             self.update_layer(reward, a, a_, i)
         self.n += 1
+        #sys.exit(0)
             
     def fit(self, number_of_episodes, timestep_per_episode):
-         e = 0.5
+         e = 0.9
          for i_episode in range(number_of_episodes):
-            observation = self.env.reset()
+            observation = np.array(self.env.reset()).reshape(1,1)
             for t in range(timestep_per_episode):
                 self.env.render()
                 if (np.random.uniform() < e):
@@ -80,10 +87,12 @@ class ZapNet:
                 else:
                     action = self.action(observation)
                 observationN, reward, done, info = self.env.step(action)
+                observationN = np.array(observationN).reshape(1,1)
                 self.update(observation, observationN, action, reward)
                 observation = observationN
                 if done:
                     print("Episode finished after {} timesteps".format(t+1))
+                    break
 
 
 
@@ -92,11 +101,12 @@ class ZapNet:
         self.n = 0
         for i_episode in range(number_of_episodes):
                 r = 0
-                observation = self.env.reset()
+                observation = np.array(self.env.reset()).reshape(1,1)
                 for t in range(timestep_per_episode):
                     self.env.render()
                     action = self.action(observation)
                     observationN, reward, done, info = self.env.step(action)
+                    observationN = np.array(observationN).reshape(1,1)
                     self.update(observation, observationN, action, reward)
                     observation = observationN
                     r += reward
